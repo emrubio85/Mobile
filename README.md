@@ -1,5 +1,7 @@
+# Aplicacion Hibrida
 **Manejo de Tareas**
 
+# descripcion
 Aplicación híbrida (Ionic + React) para optimizar la gestión del tiempo. Permite crear, editar y organizar tareas, añadir fechas de vencimiento y prioridades, recibir recordatorios (notificaciones locales), y visualizar las tareas en una agenda/calendario. Incluye métricas y un historial de tareas completadas para seguir tu progreso.
 
 Funciones principales:
@@ -26,5 +28,3 @@ npx cap sync
 ```
 
 Proyecto inicial generado con Ionic + Vite.
-# Aplicacion Hibrida
-# descripcion
