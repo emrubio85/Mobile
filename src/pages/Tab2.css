@@ -1,0 +1,11 @@
+.calendar-page { font-family: inherit; }
+.calendar-header { display:flex; justify-content:space-between; align-items:center; padding:12px; }
+.calendar-grid { padding: 0 12px 12px 12px; }
+.weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; }
+.weekday { text-align:center; font-weight:600; }
+.week-row { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; }
+.day-cell { min-height:64px; border-radius:6px; padding:6px; background:var(--ion-color-light); cursor:pointer; position:relative; }
+.day-cell.selected { outline:2px solid var(--ion-color-primary); }
+.day-cell.has-tasks { background: linear-gradient(90deg, rgba(255,255,0,0.08), transparent); }
+.day-number { position:absolute; top:6px; left:8px; font-size:14px; }
+.dot { position:absolute; right:8px; bottom:6px; width:8px; height:8px; border-radius:50%; background:var(--ion-color-primary); }

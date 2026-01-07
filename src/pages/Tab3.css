@@ -1,0 +1,13 @@
+.tab3-page .stats-row { display:flex; gap:12px; flex-wrap:wrap; }
+.donut-wrap { width:120px; height:120px; display:flex; align-items:center; justify-content:center; }
+
+.donut-arc {
+	transition: stroke-dashoffset 800ms ease-out;
+}
+
+.priority-legend { display:flex; gap:12px; margin-top:8px; align-items:center; }
+.legend-item { display:flex; align-items:center; gap:6px; font-size:14px; }
+.legend-dot { width:12px; height:12px; border-radius:50%; display:inline-block; }
+.legend-dot.high { background:#ff3b30; }
+.legend-dot.medium { background:#ff9500; }
+.legend-dot.low { background:#34c759; }
