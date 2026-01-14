@@ -1,76 +1,105 @@
 /* AddTaskModal.css */
 
 .modal-content {
-  --background: var(--glass-bg);
-  --border-radius: 20px; 
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: var(--glass-border);
-  box-shadow: var(--glass-shadow);
+  /* Using more opaque white for light mode to ensure contrast, but keeping blur */
+  --background: rgba(255, 255, 255, 0.85); 
+  --border-radius: 24px; 
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 /* Inset List Styling */
 .ios-inset-list {
   margin: 16px;
-  border-radius: 12px;
+  border-radius: 16px; /* Smooth corners */
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.5); /* Semi-transparent */
+  background: rgba(255, 255, 255, 0.65); /* More visible against modal bg */
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Chips Container */
 .chips-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 4px 0;
+  gap: 10px;
+  padding: 8px 0;
 }
 
 /* Custom Chip */
 .custom-chip {
-  padding: 10px 18px; /* Slightly larger for touch targets */
+  padding: 10px 18px; 
   border-radius: 20px;
-  background: #e0e0e0; /* Darker gray for better contrast against white */
+  background: rgba(118, 118, 128, 0.12); /* Apple system gray */
   color: #000;
-  font-weight: 600; /* Bolder text */
-  font-size: 14px;
-  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 15px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
-  border: 1px solid #c7c7cc; /* Border for definition */
+  border: none; /* Cleaner look */
 }
 
 .custom-chip.selected {
-  background: var(--ion-color-primary); /* Uses ESPOL Navy Blue */
+  background: var(--ion-color-primary); 
   color: white;
-  border-color: transparent;
-  box-shadow: 0 4px 10px rgba(0, 51, 102, 0.4); /* Navy shadow */
-  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3); /* Soft blue shadow */
+  transform: scale(1.02);
+  font-weight: 600;
 }
 
-/* Specific Category Colors when selected - Adjusted for Navy Theme harmony */
+/* Specific Category Colors when selected */
 .custom-chip.cat-work.selected { background: #5856d6; } /* Indigo */
 .custom-chip.cat-personal.selected { background: #007aff; } /* Blue */
-.custom-chip.cat-study.selected { background: #2c5282; } /* Steel Blue */
-.custom-chip.cat-shopping.selected { background: #4a6fa5; } /* Muted Blue */
+.custom-chip.cat-study.selected { background: #ff9500; } /* Orange */
+.custom-chip.cat-shopping.selected { background: #34c759; } /* Green */
+.custom-chip.cat-others.selected { background: #af52de; } /* Purple */
 
-/* Priority Colors - Keep semantic but bolder */
-.custom-chip.prio-high.selected { background: #cc0000; color: white; } /* Dark Red */
-.custom-chip.prio-medium.selected { background: #e69500; color: white; } /* Dark Orange */
-.custom-chip.prio-low.selected { background: #2d8a4e; color: white; } /* Dark Green */
+/* Priority Colors */
+.custom-chip.prio-high.selected { background: #ff3b30; color: white; } /* Red */
+.custom-chip.prio-medium.selected { background: #ff9500; color: white; } /* Orange */
+.custom-chip.prio-low.selected { background: #34c759; color: white; } /* Green */
 
 /* Cute Input */
 .cute-input {
-  --padding-start: 0;
-  font-size: 16px;
-  font-weight: 500;
-  --color: #000000; /* Force black text */
-  --placeholder-color: #666666; /* Darker placeholder */
+  --padding-start: 12px;
+  font-size: 17px;
+  font-weight: 400;
+  --color: #000000;
+  --placeholder-color: #3c3c4399; /* Apple secondary label color */
 }
 
 /* Modal Handle (for sheet look) */
 .modal-handle {
-  width: 40px;
+  width: 36px;
   height: 5px;
-  background: #c7c7cc;
-  border-radius: 3px;
-  margin: 10px auto;
+  background: rgba(60, 60, 67, 0.3);
+  border-radius: 2.5px;
+  margin: 8px auto;
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-content {
+    --background: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+  
+  .ios-inset-list {
+    background: rgba(28, 28, 30, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .custom-chip {
+    background: rgba(118, 118, 128, 0.24);
+    color: white;
+  }
+  
+  .cute-input {
+    --color: #ffffff;
+    --placeholder-color: #ebebf599;
+  }
+  
+  .modal-handle {
+    background: rgba(235, 235, 245, 0.3);
+  }
 }

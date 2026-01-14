@@ -10,7 +10,7 @@ import {
   IonItemOptions,
   IonItemOption
 } from '@ionic/react';
-import { trash, createOutline, checkmarkDone, trashOutline, checkmarkCircleOutline, timerOutline } from 'ionicons/icons';
+import { trash, createOutline, checkmarkDone, trashOutline, checkmarkCircleOutline, timerOutline, repeatOutline, listOutline } from 'ionicons/icons';
 import { Task } from '../models/task';
 
 interface Props {
@@ -54,9 +54,12 @@ const TaskList: React.FC<Props> = ({ tasks, onToggle, onDelete, onEdit, onFocus 
             detail={false} 
             lines="none" 
             style={{ 
-              '--background': 'white',
+              '--background': 'rgba(255, 255, 255, 0.65)',
               '--padding-start': '16px',
-              '--inner-padding-end': '16px'
+              '--inner-padding-end': '16px',
+              '--border-style': 'none',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.4)'
             }}
             onClick={() => onEdit(t)}
           >
@@ -102,6 +105,17 @@ const TaskList: React.FC<Props> = ({ tasks, onToggle, onDelete, onEdit, onFocus 
                      t.category === 'personal' ? 'Personal' : 
                      t.category === 'study' ? 'Estudios' : 
                      t.category === 'shopping' ? 'Compras' : 'Otro'}
+                  </span>
+                )}
+                {t.recurrence && (
+                  <span style={{ marginLeft: '8px', color: 'var(--ion-color-medium)' }}>
+                     <IonIcon icon={repeatOutline} style={{ verticalAlign: 'text-bottom' }} />
+                  </span>
+                )}
+                {t.subtasks && t.subtasks.length > 0 && (
+                  <span style={{ marginLeft: '8px', color: 'var(--ion-color-medium)', fontWeight: 600, fontSize: '11px' }}>
+                     <IonIcon icon={listOutline} style={{ verticalAlign: 'text-bottom', marginRight: '2px' }} />
+                     {t.subtasks.filter(st => st.completed).length}/{t.subtasks.length}
                   </span>
                 )}
                 {t.due && (

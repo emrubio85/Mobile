@@ -25,6 +25,7 @@ import {
 import './Tab3.css';
 import { loadTasks } from '../utils/storage';
 import { Task } from '../models/task';
+import { User } from '../utils/userStorage';
 
 function donutPath(radius: number, stroke: number, percent: number) {
   const cx = radius + stroke;
@@ -35,7 +36,11 @@ function donutPath(radius: number, stroke: number, percent: number) {
   return { cx, cy, r, c, dash };
 }
 
-const Tab3: React.FC = () => {
+interface Tab3Props {
+  user: User | null;
+}
+
+const Tab3: React.FC<Tab3Props> = ({ user }) => {
   const [darkMode, setDarkMode] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
 
@@ -60,24 +65,39 @@ const Tab3: React.FC = () => {
   const d = donutPath(40, 6, percent);
   const strokeDashoffset = d.c - d.dash;
 
+const SettingIcon = ({ color, icon, slot }: { color: string, icon: any, slot?: string }) => (
+  <div slot={slot} style={{
+    background: color,
+    width: '28px',
+    height: '28px',
+    borderRadius: '6px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: '12px'
+  }}>
+    <IonIcon icon={icon} style={{ color: 'white', fontSize: '18px' }} />
+  </div>
+);
+
   return (
     <IonPage>
       <IonHeader className="ion-no-border">
-        <IonToolbar style={{ '--background': 'var(--ion-background-color)' }}>
-          <IonTitle style={{ fontWeight: 800 }}>Perfil y Datos</IonTitle>
+        <IonToolbar style={{ '--background': 'transparent' }}>
+          <IonTitle style={{ fontWeight: 800, fontSize: '34px' }}>Perfil</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent fullscreen className="profile-page apple-bg">
         
         {/* Profile Header */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '10px 16px 30px 16px' }}>
           <div style={{ position: 'relative' }}>
-             <IonAvatar style={{ width: '80px', height: '80px', boxShadow: '0 8px 16px rgba(0,0,0,0.1)' }}>
+             <IonAvatar style={{ width: '96px', height: '96px', boxShadow: '0 12px 24px rgba(0,0,0,0.12)', border: '4px solid rgba(255,255,255,0.8)' }}>
                <img alt="Avatar" src="https://ionicframework.com/docs/img/demos/avatar.svg" />
              </IonAvatar>
           </div>
-          <h2 style={{ marginTop: '12px', fontWeight: '700', fontSize: '20px' }}>Valencia Usuario</h2>
-          <p style={{ margin: '4px', color: 'var(--ion-color-medium)', fontSize: '14px' }}>Gestor de Tareas</p>
+          <h2 style={{ marginTop: '16px', fontWeight: '800', fontSize: '24px', letterSpacing: '-0.5px' }}>{user?.name || 'Usuario'}</h2>
+          <p style={{ margin: '4px', color: 'var(--ion-color-medium)', fontSize: '15px' }}>Gestor de Tareas</p>
         </div>
 
         {/* Stats Card */}
@@ -106,8 +126,8 @@ const Tab3: React.FC = () => {
                     />
                     <defs>
                       <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#003366" />
-                        <stop offset="100%" stopColor="#00509e" />
+                        <stop offset="0%" stopColor="#007aff" />
+                        <stop offset="100%" stopColor="#34c759" />
                       </linearGradient>
                     </defs>
                   </svg>
@@ -131,10 +151,11 @@ const Tab3: React.FC = () => {
         </div>
 
         {/* Settings List */}
-        <IonList inset={true} style={{ borderRadius: '16px', marginBottom: '24px' }}>
-          <IonItem lines="full" detail={false}>
-            <IonIcon slot="start" icon={moonOutline} style={{ color: '#5856d6' }} />
-            <IonLabel>Modo Oscuro</IonLabel>
+        {/* Settings List */}
+        <IonList inset={true} className="glass-effect" style={{ borderRadius: '14px', marginBottom: '24px', padding: 0 }}>
+          <IonItem lines="full" detail={false} style={{ '--background': 'transparent' }}>
+            <SettingIcon slot="start" icon={moonOutline} color="#5856d6" />
+            <IonLabel style={{ fontWeight: 500 }}>Modo Oscuro</IonLabel>
             <IonToggle 
               checked={darkMode} 
               onIonChange={e => {
@@ -143,17 +164,17 @@ const Tab3: React.FC = () => {
               }} 
             />
           </IonItem>
-          <IonItem lines="none" detail={false}>
-            <IonIcon slot="start" icon={notificationsOutline} style={{ color: '#ff2d55' }} />
-            <IonLabel>Notificaciones</IonLabel>
+          <IonItem lines="none" detail={false} style={{ '--background': 'transparent' }}>
+            <SettingIcon slot="start" icon={notificationsOutline} color="#ff2d55" />
+            <IonLabel style={{ fontWeight: 500 }}>Notificaciones</IonLabel>
             <IonToggle defaultChecked={true} />
           </IonItem>
         </IonList>
 
-        <IonList inset={true} style={{ borderRadius: '16px' }}>
-          <IonItem button detail={true} lines="none">
-            <IonIcon slot="start" icon={lockClosedOutline} style={{ color: '#34c759' }} />
-            <IonLabel>Privacidad</IonLabel>
+        <IonList inset={true} className="glass-effect" style={{ borderRadius: '14px', padding: 0 }}>
+          <IonItem button detail={true} lines="none" style={{ '--background': 'transparent' }}>
+            <SettingIcon slot="start" icon={lockClosedOutline} color="#34c759" />
+            <IonLabel style={{ fontWeight: 500 }}>Privacidad</IonLabel>
           </IonItem>
         </IonList>
 

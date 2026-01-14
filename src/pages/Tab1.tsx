@@ -80,19 +80,61 @@ const Tab1: React.FC = () => {
 
   function toggle(id: string) {
     setTasks(prev => {
-      const newState = prev.map(p => {
+      const task = prev.find(t => t.id === id);
+      if (!task) return prev;
+
+      const willComplete = !task.completed;
+      let newTasks = [...prev];
+      let nextTask: Task | null = null;
+
+      // Handle Recurrence
+      if (willComplete && task.recurrence) {
+        let nextDue = task.due ? new Date(task.due) : new Date();
+        // If overdue, base next occurrence on today? Or strictly on previous due date?
+        // Usually strictly on previous due date preserves cadence, but if very old, it might be annoying.
+        // For simplicity, let's base on *next* cycle from *current scheduled date*
+        if (new Date(nextDue) < new Date()) {
+           nextDue = new Date(); // Reset to today if it was old
+        }
+        
+        if (task.recurrence === 'daily') nextDue.setDate(nextDue.getDate() + 1);
+        if (task.recurrence === 'weekly') nextDue.setDate(nextDue.getDate() + 7);
+        if (task.recurrence === 'monthly') nextDue.setMonth(nextDue.getMonth() + 1);
+
+        nextTask = {
+          ...task,
+          id: `${Date.now()}_rec`,
+          due: nextDue.toISOString(),
+          completed: false,
+          completedAt: undefined,
+          createdAt: new Date().toISOString(),
+          // Don't copy subtasks state? usually resets.
+          subtasks: task.subtasks?.map(s => ({ ...s, completed: false }))
+        };
+      }
+
+      // Update current task
+      newTasks = newTasks.map(p => {
         if (p.id !== id) return p;
-        const willComplete = !p.completed;
         return willComplete
           ? { ...p, completed: true, completedAt: new Date().toISOString() }
           : { ...p, completed: false, completedAt: undefined };
       });
-      const updated = newState.find(x => x.id === id);
+
+      // Append next recurring task if generated
+      if (nextTask) {
+        newTasks = [nextTask, ...newTasks];
+        scheduleForTask(nextTask).catch(() => {});
+      }
+
+      // Handle Notifications for current
+      const updated = newTasks.find(x => x.id === id);
       if (updated) {
         if (updated.completed) cancelForTask(id).catch(() => {});
         else scheduleForTask(updated).catch(() => {});
       }
-      return newState;
+
+      return newTasks;
     });
   }
 
@@ -192,18 +234,15 @@ const Tab1: React.FC = () => {
 
         {/* Summary Card */}
         <IonCard className="glass-effect" style={{ 
-          background: 'linear-gradient(135deg, rgba(52, 199, 89, 0.8) 0%, rgba(48, 176, 199, 0.8) 100%)', // More organic/Apple health colors
-          borderRadius: '24px',
-          border: '1px solid rgba(255, 255, 255, 0.3)',
-          boxShadow: '0 10px 40px rgba(48, 176, 199, 0.3)'
+          borderRadius: '24px'
         }}>
           <IonCardHeader>
-            <IonCardSubtitle style={{ color: 'rgba(255,255,255,0.8)' }}>Productividad</IonCardSubtitle>
-            <IonCardTitle style={{ color: 'white', fontSize: '32px', fontWeight: '700' }}>
+            <IonCardSubtitle style={{ color: 'var(--ion-color-medium)' }}>Productividad</IonCardSubtitle>
+            <IonCardTitle style={{ fontSize: '32px', fontWeight: '700' }}>
               {Math.round((completedCount / (tasks.length || 1)) * 100)}%
             </IonCardTitle>
           </IonCardHeader>
-          <IonCardContent style={{ color: 'white' }}>
+          <IonCardContent>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <IonIcon icon={trendingUpOutline} />
               <span>Completadas: {completedCount} de {tasks.length}</span>
@@ -234,9 +273,8 @@ const Tab1: React.FC = () => {
         {/* Extra Padding for FAB */}
         <div style={{ height: '80px' }}></div>
 
-        {/* FAB */}
         <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{ margin: '16px' }}>
-          <IonFabButton onClick={() => { setEditing(null); setShowModal(true); }} style={{ '--background': 'var(--ion-color-primary)', boxShadow: '0 4px 16px rgba(88, 86, 214, 0.4)' }}>
+          <IonFabButton onClick={() => { setEditing(null); setShowModal(true); }} style={{ '--background': 'var(--ion-color-primary)', boxShadow: '0 4px 16px rgba(0, 122, 255, 0.4)' }}>
             <IonIcon icon={add} />
           </IonFabButton>
         </IonFab>

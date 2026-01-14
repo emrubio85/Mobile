@@ -1,13 +1,23 @@
-.tab3-page .stats-row { display:flex; gap:12px; flex-wrap:wrap; }
-.donut-wrap { width:120px; height:120px; display:flex; align-items:center; justify-content:center; }
+/* Tab3.css */
 
-.donut-arc {
-	transition: stroke-dashoffset 800ms ease-out;
+/* Animated Background */
+.profile-page {
+  --background: #f2f2f7;
 }
 
-.priority-legend { display:flex; gap:12px; margin-top:8px; align-items:center; }
-.legend-item { display:flex; align-items:center; gap:6px; font-size:14px; }
-.legend-dot { width:12px; height:12px; border-radius:50%; display:inline-block; }
-.legend-dot.high { background:#ff3b30; }
-.legend-dot.medium { background:#ff9500; }
-.legend-dot.low { background:#34c759; }
+.profile-page::part(background) {
+  background: radial-gradient(circle at 10% 10%, rgba(88, 86, 214, 0.08) 0%, transparent 40%),
+              radial-gradient(circle at 90% 90%, rgba(52, 199, 89, 0.08) 0%, transparent 40%),
+              #f2f2f7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .profile-page {
+    --background: #000000;
+  }
+  .profile-page::part(background) {
+    background: radial-gradient(circle at 10% 10%, rgba(94, 92, 230, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(48, 209, 88, 0.1) 0%, transparent 40%),
+                #000000;
+  }
+}

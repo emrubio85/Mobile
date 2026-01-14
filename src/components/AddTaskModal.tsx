@@ -28,7 +28,11 @@ import {
   sparklesOutline,
   cameraOutline,
   closeCircle,
-  timerOutline
+  timerOutline,
+  repeatOutline,
+  checkboxOutline,
+  addCircleOutline,
+  trashOutline
 } from 'ionicons/icons';
 import { Task } from '../models/task';
 import './AddTaskModal.css';
@@ -49,6 +53,9 @@ const AddTaskModal: React.FC<Props> = ({ isOpen, onClose, onSave, editing, prese
   const [priority, setPriority] = useState<'low'|'medium'|'high'>('medium');
   const [category, setCategory] = useState<string | undefined>(undefined);
   const [attachments, setAttachments] = useState<string[]>([]);
+  const [subtasks, setSubtasks] = useState<{id: string, title: string, completed: boolean}[]>([]);
+  const [recurrence, setRecurrence] = useState<'daily'|'weekly'|'monthly'|null>(null);
+  const [newSubtask, setNewSubtask] = useState('');
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -59,6 +66,8 @@ const AddTaskModal: React.FC<Props> = ({ isOpen, onClose, onSave, editing, prese
       setPriority(editing.priority || 'medium');
       setCategory(editing.category);
       setAttachments(editing.attachments || []);
+      setSubtasks(editing.subtasks || []);
+      setRecurrence(editing.recurrence || null);
     } else {
       setTitle('');
       setNotes('');
@@ -66,6 +75,8 @@ const AddTaskModal: React.FC<Props> = ({ isOpen, onClose, onSave, editing, prese
       setPriority('medium');
       setCategory(undefined);
       setAttachments([]);
+      setSubtasks([]);
+      setRecurrence(null);
     }
   }, [editing, isOpen]);
 
@@ -85,11 +96,23 @@ const AddTaskModal: React.FC<Props> = ({ isOpen, onClose, onSave, editing, prese
     setAttachments(prev => prev.filter((_, i) => i !== index));
   };
 
+  const addSubtask = () => {
+    if (!newSubtask.trim()) return;
+    setSubtasks([...subtasks, { id: Date.now().toString(), title: newSubtask.trim(), completed: false }]);
+    setNewSubtask('');
+  };
+
+  const removeSubtask = (id: string) => {
+    setSubtasks(subtasks.filter(s => s.id !== id));
+  };
+
+  // ... (file handling code remains same) ...
+
   function handleSave() {
     const now = new Date().toISOString();
     const task: Task = editing
-      ? { ...editing, title, notes, due, priority, category: category as any, attachments }
-      : { id: `${Date.now()}`, title, notes, due, completed: false, createdAt: now, priority, category: category as any, attachments };
+      ? { ...editing, title, notes, due, priority, category: category as any, attachments, subtasks, recurrence }
+      : { id: `${Date.now()}`, title, notes, due, completed: false, createdAt: now, priority, category: category as any, attachments, subtasks, recurrence };
     onSave(task);
     onClose();
   }
@@ -122,7 +145,7 @@ const AddTaskModal: React.FC<Props> = ({ isOpen, onClose, onSave, editing, prese
               style={{ fontWeight: '600' }}
             />
           </IonItem>
-          <IonItem lines="none">
+          <IonItem lines="full">
              <IonInput 
               value={notes} 
               placeholder="Notas adicionales (opcional)" 
@@ -130,6 +153,34 @@ const AddTaskModal: React.FC<Props> = ({ isOpen, onClose, onSave, editing, prese
               className="cute-input"
             />
           </IonItem>
+          
+          {/* Subtasks Input */}
+          <IonItem lines="none" style={{ '--background': 'rgba(0,0,0,0.02)' }}>
+            <IonIcon icon={addCircleOutline} slot="start" color="primary" />
+            <IonInput
+              value={newSubtask}
+              placeholder="Agregar subtarea..."
+              onIonChange={e => setNewSubtask(e.detail.value!)}
+              onKeyDown={e => { if(e.key === 'Enter') addSubtask(); }}
+            />
+            <IonButton fill="clear" onClick={addSubtask} disabled={!newSubtask.trim()}>
+              Agregar
+            </IonButton>
+          </IonItem>
+          
+          {subtasks.length > 0 && (
+            <div style={{ padding: '8px 0' }}>
+              {subtasks.map(sub => (
+                <IonItem key={sub.id} lines="none" style={{ '--min-height': '30px' }}>
+                  <IonIcon icon={checkboxOutline} slot="start" size="small" color="medium" />
+                  <IonLabel style={{ fontSize: '14px' }}>{sub.title}</IonLabel>
+                  <IonButton fill="clear" slot="end" onClick={() => removeSubtask(sub.id)}>
+                    <IonIcon icon={trashOutline} color="danger" size="small" />
+                  </IonButton>
+                </IonItem>
+              ))}
+            </div>
+          )}
         </IonList>
 
         {/* Date Section */}
@@ -137,7 +188,7 @@ const AddTaskModal: React.FC<Props> = ({ isOpen, onClose, onSave, editing, prese
           FECHA Y HORA
         </div>
         <IonList inset={true} style={{ margin: '0 16px 24px 16px', borderRadius: '16px' }}>
-           <IonItem lines="none">
+           <IonItem lines="full">
              <IonIcon icon={calendarOutline} slot="start" style={{ color: '#007aff' }} />
              <IonLabel>Vencimiento</IonLabel>
              <IonDatetimeButton datetime="datetime"></IonDatetimeButton>
@@ -149,6 +200,27 @@ const AddTaskModal: React.FC<Props> = ({ isOpen, onClose, onSave, editing, prese
                   onIonChange={e => setDue(e.detail.value as string)}
                 ></IonDatetime>
               </IonModal>
+           </IonItem>
+           
+           {/* Recurrence Selector */}
+           <IonItem lines="none" button id="recurrence-trigger">
+             <IonIcon icon={repeatOutline} slot="start" style={{ color: '#5856d6' }} />
+             <IonLabel>Repetir</IonLabel>
+             <IonLabel slot="end" color={recurrence ? 'primary' : 'medium'}>
+               {recurrence === 'daily' ? 'Diariamente' : 
+                recurrence === 'weekly' ? 'Semanalmente' : 
+                recurrence === 'monthly' ? 'Mensualmente' : 'Nunca'}
+             </IonLabel>
+             <IonPopover trigger="recurrence-trigger" dismissOnSelect={true}>
+               <IonContent>
+                 <IonList lines="none">
+                   <IonItem button onClick={() => setRecurrence(null)} detail={recurrence === null}>Nunca</IonItem>
+                   <IonItem button onClick={() => setRecurrence('daily')} detail={recurrence === 'daily'}>Diariamente</IonItem>
+                   <IonItem button onClick={() => setRecurrence('weekly')} detail={recurrence === 'weekly'}>Semanalmente</IonItem>
+                   <IonItem button onClick={() => setRecurrence('monthly')} detail={recurrence === 'monthly'}>Mensualmente</IonItem>
+                 </IonList>
+               </IonContent>
+             </IonPopover>
            </IonItem>
         </IonList>
 

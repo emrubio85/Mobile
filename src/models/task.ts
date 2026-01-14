@@ -7,6 +7,12 @@ export interface Task {
   priority?: 'low' | 'medium' | 'high';
   category?: 'work' | 'personal' | 'study' | 'shopping' | 'others';
   attachments?: string[]; // Base64 strings
+  subtasks?: {
+    id: string;
+    title: string;
+    completed: boolean;
+  }[];
+  recurrence?: 'daily' | 'weekly' | 'monthly' | null;
   createdAt: string;
   completedAt?: string;
 }

@@ -74,10 +74,10 @@ const FocusModal: React.FC<Props> = ({ isOpen, onClose, task, onComplete }) => {
   return (
     <IonModal isOpen={isOpen} onDidDismiss={onClose} className="focus-modal">
       <IonHeader className="ion-no-border">
-        <IonToolbar style={{ '--background': 'transparent', color: 'white', position: 'absolute', top: 0, width: '100%' }}>
-          <IonTitle>Modo Enfoque 🍅</IonTitle>
+        <IonToolbar style={{ '--background': 'transparent', position: 'absolute', top: 0, width: '100%' }}>
+          {/* Title removed for cleaner look, handled in content */}
           <IonButtons slot="end">
-            <IonButton onClick={onClose} style={{ color: 'white' }}>
+            <IonButton onClick={onClose} style={{ color: 'var(--ion-color-dark)', background: 'rgba(255,255,255,0.5)', borderRadius: '50%', width: '36px', height: '36px', margin: '8px' }}>
               <IonIcon icon={closeOutline} />
             </IonButton>
           </IonButtons>
@@ -90,26 +90,26 @@ const FocusModal: React.FC<Props> = ({ isOpen, onClose, task, onComplete }) => {
           flexDirection: 'column', 
           alignItems: 'center', 
           justifyContent: 'center', 
-          background: 'linear-gradient(180deg, rgba(0, 51, 102, 0.85) 0%, rgba(0, 30, 60, 0.95) 100%)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
-          color: 'white'
-        }}>
+          backdropFilter: 'blur(30px)',
+          WebkitBackdropFilter: 'blur(30px)',
+          background: 'rgba(255, 255, 255, 0.4)', // Light glass
+        }} className="apple-focus-container">
           
           <div style={{ marginBottom: '40px', textAlign: 'center', padding: '0 20px' }}>
-            <IonText color="light">
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold' }}>{task?.title || 'Sin tarea seleccionada'}</h2>
-              <p style={{ opacity: 0.8 }}>¡Concéntrate!</p>
+            <IonText color="dark">
+              <h2 style={{ fontSize: '28px', fontWeight: '800' }}>{task?.title || 'Sin tarea seleccionada'}</h2>
+              <p style={{ opacity: 0.6, fontSize: '18px' }}>¡Concéntrate!</p>
             </IonText>
           </div>
 
           {/* Timer Circle */}
-          <div style={{ position: 'relative', width: '250px', height: '250px', marginBottom: '40px' }}>
-             <svg viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%' }}>
-               <circle cx="50" cy="50" r="45" fill="none" stroke="#00509e" strokeWidth="5" />
-               <circle cx="50" cy="50" r="45" fill="none" stroke="#ffffff" strokeWidth="5" 
+          <div style={{ position: 'relative', width: '280px', height: '280px', marginBottom: '40px' }}>
+             <svg viewBox="0 0 100 100" style={{ transform: 'rotate(-90deg)', width: '100%', height: '100%', filter: 'drop-shadow(0 10px 20px rgba(0,0,0,0.1))' }}>
+               <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(0,0,0,0.05)" strokeWidth="6" />
+               <circle cx="50" cy="50" r="45" fill="none" stroke="#007aff" strokeWidth="6" 
                  strokeDasharray="283" 
                  strokeDashoffset={dashoffset} 
+                 strokeLinecap="round"
                  style={{ transition: 'stroke-dashoffset 1s linear' }}
                />
              </svg>
@@ -117,40 +117,42 @@ const FocusModal: React.FC<Props> = ({ isOpen, onClose, task, onComplete }) => {
                position: 'absolute', 
                top: 0, left: 0, right: 0, bottom: 0, 
                display: 'flex', alignItems: 'center', justifyContent: 'center',
-               fontSize: '48px', fontWeight: '800'
+               fontSize: '56px', fontWeight: '800',
+               color: 'var(--ion-text-color)',
+               fontVariantNumeric: 'tabular-nums'
              }}>
                {formatTime(timeLeft)}
              </div>
           </div>
 
           {/* Controls */}
-          <div style={{ display: 'flex', gap: '20px' }}>
+          <div style={{ display: 'flex', gap: '24px' }}>
              <IonButton 
                shape="round" 
-               color={isActive ? "warning" : "success"} 
+               color={isActive ? "warning" : "primary"} 
                onClick={toggleTimer} 
-               style={{ width: '80px', height: '80px', '--border-radius': '50%' }}
+               style={{ width: '80px', height: '80px', '--border-radius': '50%', '--box-shadow': '0 8px 24px rgba(0,0,0,0.15)' }}
              >
-               <IonIcon icon={isActive ? pause : play} style={{ fontSize: '32px' }} />
+               <IonIcon icon={isActive ? pause : play} style={{ fontSize: '36px', color: 'white' }} />
              </IonButton>
              
              <IonButton 
                shape="round" 
-               color="light" 
-               fill="outline"
+               fill="solid"
+               color="light"
                onClick={resetTimer} 
-               style={{ width: '80px', height: '80px', '--border-radius': '50%' }}
+               style={{ width: '80px', height: '80px', '--border-radius': '50%', '--box-shadow': '0 8px 24px rgba(0,0,0,0.05)' }}
              >
-               <IonIcon icon={refresh} style={{ fontSize: '32px' }} />
+               <IonIcon icon={refresh} style={{ fontSize: '32px', color: 'var(--ion-color-medium)' }} />
              </IonButton>
           </div>
           
           {task && (
              <IonButton 
                fill="clear" 
-               color="light" 
+               color="success" 
                onClick={() => { onComplete(task.id); onClose(); }} 
-               style={{ marginTop: '40px' }}
+               style={{ marginTop: '48px', fontWeight: 600, transform: 'scale(1.1)' }}
              >
                <IonIcon slot="start" icon={checkmarkDone} />
                Terminé esta tarea

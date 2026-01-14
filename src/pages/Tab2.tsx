@@ -119,12 +119,12 @@ const Tab2: React.FC = () => {
 
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Agenda</IonTitle>
+      <IonHeader className="ion-no-border">
+        <IonToolbar style={{ '--background': 'transparent' }}>
+          <IonTitle style={{ fontWeight: 800, fontSize: '28px' }}>Agenda</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent fullscreen className="calendar-page">
+      <IonContent fullscreen className="calendar-page apple-bg">
         <div className="calendar-header">
             <IonButton fill="clear" onClick={prevMonth}>
               <IonIcon icon={chevronBack} />
@@ -135,8 +135,8 @@ const Tab2: React.FC = () => {
             </IonButton>
         </div>
         
-        <div style={{ padding: '0 12px 12px 12px' }}>
-          <IonSegment value={filter} onIonChange={e => setFilter((e.target as any).value)}>
+        <div style={{ padding: '0 16px 16px 16px' }}>
+          <IonSegment value={filter} onIonChange={e => setFilter((e.target as any).value)} mode="ios" style={{ background: 'rgba(118, 118, 128, 0.12)', borderRadius: '9px' }}>
             <IonSegmentButton value="all">Todas</IonSegmentButton>
             <IonSegmentButton value="pending">Pendientes</IonSegmentButton>
             <IonSegmentButton value="completed">Completadas</IonSegmentButton>
@@ -165,7 +165,7 @@ const Tab2: React.FC = () => {
         </div>
 
         <div style={{ padding: 12 }}>
-          <IonCard>
+          <IonCard className="glass-effect">
             <IonCardHeader>
               <IonCardTitle>Recordatorios próximos</IonCardTitle>
             </IonCardHeader>
@@ -188,7 +188,7 @@ const Tab2: React.FC = () => {
             </IonCardContent>
           </IonCard>
 
-          <IonCard>
+          <IonCard className="glass-effect">
             <IonCardHeader>
               <IonCardTitle>Tareas del día {selectedDate || ''}</IonCardTitle>
             </IonCardHeader>
