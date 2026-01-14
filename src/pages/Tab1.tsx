@@ -1,33 +1,50 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   IonContent,
-  IonHeader,
   IonPage,
-  IonTitle,
-  IonToolbar,
+  IonCard,
+  IonCardHeader,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonCardContent,
+  IonGrid,
+  IonRow,
+  IonCol,
+  IonIcon,
   IonFab,
   IonFabButton,
-  IonIcon,
-  IonBadge,
-  IonProgressBar,
   IonAlert,
   IonToast,
   IonSegment,
   IonSegmentButton,
-  IonLabel
+  IonLabel,
+  IonList,
+  IonItem
 } from '@ionic/react';
-import { add } from 'ionicons/icons';
+import { 
+  add, 
+  walletOutline, 
+  trendingUpOutline, 
+  timeOutline, 
+  personOutline,
+  listOutline,
+  checkmarkDoneOutline,
+  alertCircleOutline
+} from 'ionicons/icons';
 import './Tab1.css';
 import TaskList from '../components/TaskList';
 import AddTaskModal from '../components/AddTaskModal';
+import FocusModal from '../components/FocusModal';
 import { Task } from '../models/task';
-import { loadTasks, saveTasks } from '../utils/storage';
-import { removeTask } from '../utils/storage';
+import { loadTasks, saveTasks, removeTask } from '../utils/storage';
 import { requestPermission, scheduleForTask, cancelForTask, rescheduleAll } from '../utils/notifications';
 
 const Tab1: React.FC = () => {
+  // Logic State
   const [tasks, setTasks] = useState<Task[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [showFocusModal, setShowFocusModal] = useState(false);
+  const [focusTask, setFocusTask] = useState<Task | null>(null);
   const [editing, setEditing] = useState<Task | null>(null);
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -36,27 +53,26 @@ const Tab1: React.FC = () => {
   const undoTimer = React.useRef<number | null>(null);
   const [filter, setFilter] = useState<'all' | 'today' | 'upcoming' | 'completed'>('all');
 
+  // Load Tasks
   useEffect(() => {
     (async () => {
       const t = await loadTasks();
       setTasks(t);
-      // request permission and reschedule notifications for existing tasks
       await requestPermission();
       await rescheduleAll(t);
     })();
   }, []);
 
+  // Save Tasks
   useEffect(() => {
-    (async () => {
-      await saveTasks(tasks);
-    })();
+    saveTasks(tasks);
   }, [tasks]);
 
+  // Logic Functions
   function handleSave(task: Task) {
     setTasks(prev => {
       const exists = prev.find(p => p.id === task.id);
       if (exists) return prev.map(p => (p.id === task.id ? task : p));
-      // schedule notification for new task
       scheduleForTask(task).catch(() => {});
       return [task, ...prev];
     });
@@ -73,41 +89,38 @@ const Tab1: React.FC = () => {
       });
       const updated = newState.find(x => x.id === id);
       if (updated) {
-        if (updated.completed) {
-          cancelForTask(id).catch(() => {});
-        } else {
-          scheduleForTask(updated).catch(() => {});
-        }
+        if (updated.completed) cancelForTask(id).catch(() => {});
+        else scheduleForTask(updated).catch(() => {});
       }
       return newState;
     });
   }
 
   function remove(id: string) {
-    // llama solo despues de una confirmacion
     const task = tasks.find(t => t.id === id) || null;
     if (task) {
       setLastDeleted(task);
       setTasks(prev => prev.filter(p => p.id !== id));
       cancelForTask(id).catch(() => {});
-      // update persistent storage
       removeTask(id).catch(() => {});
-      // muestara undo toast
-      if (undoTimer.current) {
-        clearTimeout(undoTimer.current);
-      }
+      if (undoTimer.current) clearTimeout(undoTimer.current);
       setShowUndoToast(true);
       undoTimer.current = window.setTimeout(() => {
         setShowUndoToast(false);
         setLastDeleted(null);
         undoTimer.current = null;
-      }, 8000) as unknown as number;
+      }, 8000);
     }
   }
 
   function startEdit(t: Task) {
     setEditing(t);
     setShowModal(true);
+  }
+
+  function startFocus(t: Task) {
+    setFocusTask(t);
+    setShowFocusModal(true);
   }
 
   function requestDelete(id: string) {
@@ -123,36 +136,22 @@ const Tab1: React.FC = () => {
     setShowConfirm(false);
   }
 
-  function cancelDelete() {
-    setPendingDeleteId(null);
-    setShowConfirm(false);
-  }
-
   function handleUndo() {
     if (lastDeleted) {
-      // restore
-      setTasks(prev => [lastDeleted as Task, ...prev]);
+      setTasks(prev => [lastDeleted, ...prev]);
       scheduleForTask(lastDeleted).catch(() => {});
       setLastDeleted(null);
     }
     setShowUndoToast(false);
-    if (undoTimer.current) {
-      clearTimeout(undoTimer.current);
-      undoTimer.current = null;
-    }
+    if (undoTimer.current) clearTimeout(undoTimer.current);
   }
 
-  const completedCount = tasks.filter(t => t.completed).length;
-  const progress = tasks.length ? completedCount / tasks.length : 0;
-
-  function isSameDay(d1: Date, d2: Date) {
-    return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
-  }
-
-  const filteredAndSorted = React.useMemo(() => {
+  // Filter Logic
+  const filteredAndSorted = useMemo(() => {
     const now = new Date();
+    const isSameDay = (d1: Date, d2: Date) => d1.toDateString() === d2.toDateString();
+    
     let list = tasks.slice();
-    // filtering
     if (filter === 'today') {
       list = list.filter(t => t.due && isSameDay(new Date(t.due), now) && !t.completed);
     } else if (filter === 'upcoming') {
@@ -161,84 +160,127 @@ const Tab1: React.FC = () => {
       list = list.filter(t => t.completed);
     }
 
-    // sort by priority (high, medium, low) then due date asc then createdAt desc
     const priorityRank = (p?: string) => (p === 'high' ? 0 : p === 'medium' ? 1 : 2);
     list.sort((a, b) => {
       const pa = priorityRank(a.priority);
       const pb = priorityRank(b.priority);
       if (pa !== pb) return pa - pb;
       if (a.due && b.due) return new Date(a.due).getTime() - new Date(b.due).getTime();
-      if (a.due) return -1;
-      if (b.due) return 1;
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-
     return list;
   }, [tasks, filter]);
 
-  return (
-    <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Gestor de Tiempo</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent fullscreen>
-        <IonHeader collapse="condense">
-          <IonToolbar>
-            <IonTitle size="large">Tareas</IonTitle>
-          </IonToolbar>
-        </IonHeader>
+  const completedCount = tasks.filter(t => t.completed).length;
+  const pendingCount = tasks.length - completedCount;
 
-        <div style={{ padding: 12 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h2>Tus tareas</h2>
-            <div style={{ textAlign: 'right' }}>
-              <IonBadge>{completedCount}/{tasks.length}</IonBadge>
-            </div>
-          </div>
-          <IonProgressBar value={progress} />
+  const pageRef = React.useRef<HTMLElement>(null);
+
+  return (
+    <IonPage ref={pageRef}>
+      <IonContent fullscreen className="ion-padding-vertical apple-bg">
+        
+        {/* Header Section */}
+        <div className="ion-padding-horizontal ion-padding-top">
+          <h1 style={{ fontWeight: 800, fontSize: '28px', marginBottom: '4px' }} className="gradient-text">
+            Mis Tareas
+          </h1>
+          <p style={{ color: 'var(--ion-color-medium)', margin: 0 }}>
+            {pendingCount === 0 ? '¡Todo al día!' : `Tienes ${pendingCount} tareas pendientes`}
+          </p>
         </div>
 
-        <div style={{ padding: 12 }}>
-          <IonSegment value={filter} onIonChange={e => setFilter((e.target as any).value)}>
+        {/* Summary Card */}
+        <IonCard className="glass-effect" style={{ 
+          background: 'linear-gradient(135deg, rgba(0, 51, 102, 0.85) 0%, rgba(0, 80, 158, 0.85) 100%)', 
+          borderRadius: '24px',
+          // We keep the gradient background for the card itself as requested (ESPOL theme), 
+          // but we add a 'glow' border via box-shadow in CSS.
+          // Note: Glass effect works best on 'white/transparent' cards, but for this colored card
+          // we use border and shadow to simulate depth.
+          border: '1px solid rgba(255, 255, 255, 0.3)',
+          boxShadow: '0 10px 30px rgba(0, 51, 102, 0.4)'
+        }}>
+          <IonCardHeader>
+            <IonCardSubtitle style={{ color: 'rgba(255,255,255,0.8)' }}>Productividad</IonCardSubtitle>
+            <IonCardTitle style={{ color: 'white', fontSize: '32px', fontWeight: '700' }}>
+              {Math.round((completedCount / (tasks.length || 1)) * 100)}%
+            </IonCardTitle>
+          </IonCardHeader>
+          <IonCardContent style={{ color: 'white' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <IonIcon icon={trendingUpOutline} />
+              <span>Completadas: {completedCount} de {tasks.length}</span>
+            </div>
+          </IonCardContent>
+        </IonCard>
+
+        {/* Filter Segments */}
+        <div className="ion-padding-horizontal" style={{ marginBottom: '16px' }}>
+          <IonSegment value={filter} onIonChange={e => setFilter((e.target as any).value)} mode="ios" style={{ background: 'rgba(118, 118, 128, 0.12)', borderRadius: '9px' }}>
             <IonSegmentButton value="all">
-              <IonLabel>Todo</IonLabel>
+              <IonLabel>Todas</IonLabel>
             </IonSegmentButton>
             <IonSegmentButton value="today">
               <IonLabel>Hoy</IonLabel>
             </IonSegmentButton>
-            <IonSegmentButton value="upcoming">
-              <IonLabel>Próximas</IonLabel>
-            </IonSegmentButton>
             <IonSegmentButton value="completed">
-              <IonLabel>Completadas</IonLabel>
+              <IonLabel>Hecho</IonLabel>
             </IonSegmentButton>
           </IonSegment>
         </div>
 
-        <TaskList tasks={filteredAndSorted} onToggle={toggle} onDelete={requestDelete} onEdit={startEdit} />
+        {/* Task List */}
+        <div className="ion-padding-horizontal">
+           <TaskList tasks={filteredAndSorted} onToggle={toggle} onDelete={requestDelete} onEdit={startEdit} onFocus={startFocus} />
+        </div>
 
-        <IonFab vertical="bottom" horizontal="end" slot="fixed">
-          <IonFabButton onClick={() => { setEditing(null); setShowModal(true); }}>
+        {/* Extra Padding for FAB */}
+        <div style={{ height: '80px' }}></div>
+
+        {/* FAB */}
+        <IonFab vertical="bottom" horizontal="end" slot="fixed" style={{ margin: '16px' }}>
+          <IonFabButton onClick={() => { setEditing(null); setShowModal(true); }} style={{ '--background': 'var(--ion-color-primary)', boxShadow: '0 4px 16px rgba(88, 86, 214, 0.4)' }}>
             <IonIcon icon={add} />
           </IonFabButton>
         </IonFab>
 
-        <AddTaskModal isOpen={showModal} onClose={() => setShowModal(false)} onSave={handleSave} editing={editing} />
-
+        {/* Modals & Alerts */}
+        <AddTaskModal 
+          isOpen={showModal} 
+          onClose={() => setShowModal(false)} 
+          onSave={handleSave} 
+          editing={editing} 
+          presentingElement={pageRef.current} 
+          onFocus={(t) => {
+            setShowModal(false); // Close edit modal
+            // Small timeout to allow animation
+            setTimeout(() => startFocus(t), 200);
+          }}
+        />
+        <FocusModal 
+          isOpen={showFocusModal} 
+          onClose={() => setShowFocusModal(false)} 
+          task={focusTask}
+          onComplete={(id) => { toggle(id); }}
+        />
+        
         <IonAlert
           isOpen={showConfirm}
           header="Confirmar"
-          message="¿Deseas eliminar esta tarea?"
-          buttons={[{ text: 'Cancelar', role: 'cancel', handler: cancelDelete }, { text: 'Borrar', handler: confirmDelete }]} />
+          message="¿Seguro que deseas eliminar esta tarea?"
+          buttons={[
+            { text: 'Cancelar', role: 'cancel', handler: () => setPendingDeleteId(null) },
+            { text: 'Eliminar', handler: confirmDelete, role: 'destructive' }
+          ]}
+        />
 
         <IonToast
           isOpen={showUndoToast}
           message="Tarea eliminada"
-          duration={8000}
+          duration={3000}
           buttons={[{ side: 'end', text: 'Deshacer', handler: handleUndo }]}
-          onDidDismiss={() => { setShowUndoToast(false); }}
+          onDidDismiss={() => setShowUndoToast(false)}
         />
       </IonContent>
     </IonPage>

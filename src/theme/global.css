@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Apply Inter globaly, harmless */
+body {
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* Specific background for our Apple-style tabs (Tab 1 & 3) */
+.apple-bg {
+  --background: #f2f2f7;
+}
+
+@media (prefers-color-scheme: dark) {
+  .apple-bg {
+    --background: #000000;
+  }
+}
+
+/* Glassmorphism Utility */
+.glass-effect {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+/* Apple-style Soft Shadow */
+.soft-shadow {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Gradient Text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--ion-color-primary) 0%, var(--ion-color-secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Card Improvements */
+ion-card {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06) !important;
+  border-radius: 20px !important;
+  margin-top: 16px;
+  margin-bottom: 16px;
+}
+
+ion-card-header {
+  padding-bottom: 8px;
+}
+
+ion-card-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* List Improvements */
+ion-list {
+  background: transparent !important;
+}
+
+ion-item {
+  --background: transparent;
+  --border-color: rgba(0,0,0,0.05);
+}
+
+/* Custom Modal Styles (Apple Sheet) */
+ion-modal.apple-modal {
+  --border-radius: 20px;
+  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
+}
+
+ion-modal.apple-modal::part(content) {
+  border-radius: 20px 20px 0 0;
+  box-shadow: 0px -4px 20px rgba(0,0,0,0.1);
+}
+
+/* Apple Input Style */
+.apple-input {
+  --background: rgba(120, 120, 128, 0.12) !important;
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --border-radius: 12px;
+  margin-bottom: 12px;
+  font-size: 16px;
+}
+
+/* Apple Button Style */
+.apple-button {
+  --border-radius: 14px;
+  font-weight: 600;
+  text-transform: none;
+  font-size: 17px;
+  --box-shadow: 0 4px 12px rgba(var(--ion-color-primary-rgb), 0.3);
+}
+
+/* Modal Handle */
+.modal-handle {
+  width: 36px;
+  height: 5px;
+  background: rgba(120, 120, 128, 0.3);
+  border-radius: 5px;
+  margin: 10px auto;
+}

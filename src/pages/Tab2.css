@@ -1,5 +1,18 @@
 .calendar-page { font-family: inherit; }
-.calendar-header { display:flex; justify-content:space-between; align-items:center; padding:12px; }
+.calendar-header { 
+  display:flex; 
+  justify-content:space-between; 
+  align-items:center; 
+  padding:12px; 
+}
+.calendar-header ion-button {
+  width: 48px; /* Fixed width for better centering */
+}
+.calendar-header strong {
+  flex: 1;
+  text-align: center;
+  text-transform: capitalize;
+}
 .calendar-grid { padding: 0 12px 12px 12px; }
 .weekdays { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; margin-bottom:6px; }
 .weekday { text-align:center; font-weight:600; }

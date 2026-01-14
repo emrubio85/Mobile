@@ -126,7 +126,6 @@ const Tab2: React.FC = () => {
       </IonHeader>
       <IonContent fullscreen className="calendar-page">
         <div className="calendar-header">
-          <div>
             <IonButton fill="clear" onClick={prevMonth}>
               <IonIcon icon={chevronBack} />
             </IonButton>
@@ -134,7 +133,9 @@ const Tab2: React.FC = () => {
             <IonButton fill="clear" onClick={nextMonth}>
               <IonIcon icon={chevronForward} />
             </IonButton>
-          </div>
+        </div>
+        
+        <div style={{ padding: '0 12px 12px 12px' }}>
           <IonSegment value={filter} onIonChange={e => setFilter((e.target as any).value)}>
             <IonSegmentButton value="all">Todas</IonSegmentButton>
             <IonSegmentButton value="pending">Pendientes</IonSegmentButton>
